@@ -55,10 +55,19 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
             border-radius:5px;
             color:white;
             text-decoration:none;
+            margin-right:5px;
+            display:inline-block;
         }
 
         .edit{ background:green; }
+        .edit:hover{ background:darkgreen; }
+
         .delete{ background:red; }
+        .delete:hover{ background:darkred; }
+
+        .top-links{
+            margin-bottom:20px;
+        }
 
         .top-links a{
             text-decoration:none;
@@ -71,6 +80,15 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
             color:white;
             padding:8px 12px;
             border-radius:5px;
+            display:inline-block;
+        }
+
+        .add-btn:hover{
+            background:#1e40af;
+        }
+
+        .action-cell{
+            white-space:nowrap;
         }
     </style>
 </head>
@@ -82,14 +100,14 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
     <h2>Members List</h2>
 
     <div class="top-links">
-        <a href="dashboard.php">Dashboard</a>
+        <a href="dashboard.php">← Back to Dashboard</a>
 
         <?php if($_SESSION['role_id'] == 1){ ?>
-            <a href="add_member.php" class="add-btn">Add Member</a>
+            <a href="add_member.php" class="add-btn">➕ Add Member</a>
         <?php } ?>
 
         <?php if($_SESSION['role_id'] == 2){ ?>
-            <a href="../staff/add_member.php" class="add-btn">Add Member</a>
+            <a href="../staff/add_member.php" class="add-btn">➕ Add Member</a>
         <?php } ?>
     </div>
 
@@ -110,20 +128,20 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
 
         <tr>
 
-            <td><?php echo $row['member_id']; ?></td>
-            <td><?php echo $row['membership_no']; ?></td>
-            <td><?php echo $row['fullname']; ?></td>
-            <td><?php echo $row['gender']; ?></td>
-            <td><?php echo $row['phone']; ?></td>
-            <td><?php echo $row['email']; ?></td>
-            <td><?php echo $row['join_date']; ?></td>
+            <td><?php echo htmlspecialchars($row['member_id']); ?></td>
+            <td><?php echo htmlspecialchars($row['membership_no']); ?></td>
+            <td><?php echo htmlspecialchars($row['fullname']); ?></td>
+            <td><?php echo htmlspecialchars($row['gender']); ?></td>
+            <td><?php echo htmlspecialchars($row['phone']); ?></td>
+            <td><?php echo htmlspecialchars($row['email']); ?></td>
+            <td><?php echo htmlspecialchars($row['join_date']); ?></td>
 
-            <td>
+            <td class="action-cell">
 
                 <?php if($_SESSION['role_id'] == 1){ ?>
 
-                    <a href="#" class="btn edit">Edit</a>
-                    <a href="#" class="btn delete">Delete</a>
+                    <a href="edit_member.php?id=<?php echo urlencode($row['member_id']); ?>" class="btn edit">✎ Edit</a>
+                    <a href="delete_member.php?id=<?php echo urlencode($row['member_id']); ?>" class="btn delete" onclick="return confirm('Are you sure you want to delete this member?');">🗑 Delete</a>
 
                 <?php } else { ?>
 
