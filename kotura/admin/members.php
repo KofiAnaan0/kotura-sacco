@@ -9,6 +9,10 @@ if(!isset($_SESSION['user_id']) || ($_SESSION['role_id'] != 1 && $_SESSION['role
 }
 
 $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
+
+if(!$result){
+    die("Database error: " . mysqli_error($conn));
+}
 ?>
 
 <!DOCTYPE html>
@@ -50,13 +54,14 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
             padding:10px;
         }
 
-        .btn{
-            padding:5px 10px;
-            border-radius:5px;
-            color:white;
-            text-decoration:none;
-            margin-right:5px;
+        .btn{ 
+            padding:5px 10px; 
+            border-radius:5px; 
+            color:white; 
+            text-decoration:none; 
+            margin-right:5px; 
             display:inline-block;
+            cursor: pointer;
         }
 
         .edit{ background:green; }
@@ -86,10 +91,6 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
         .add-btn:hover{
             background:#1e40af;
         }
-
-        .action-cell{
-            white-space:nowrap;
-        }
     </style>
 </head>
 
@@ -101,13 +102,8 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
 
     <div class="top-links">
         <a href="dashboard.php">← Back to Dashboard</a>
-
         <?php if($_SESSION['role_id'] == 1){ ?>
             <a href="add_member.php" class="add-btn">➕ Add Member</a>
-        <?php } ?>
-
-        <?php if($_SESSION['role_id'] == 2){ ?>
-            <a href="../staff/add_member.php" class="add-btn">➕ Add Member</a>
         <?php } ?>
     </div>
 
@@ -124,7 +120,10 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
             <th>Action</th>
         </tr>
 
-        <?php while($row = mysqli_fetch_assoc($result)) { ?>
+        <?php 
+        if(mysqli_num_rows($result) > 0){
+            while($row = mysqli_fetch_assoc($result)) { 
+        ?>
 
         <tr>
 
@@ -136,16 +135,16 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
             <td><?php echo htmlspecialchars($row['email']); ?></td>
             <td><?php echo htmlspecialchars($row['join_date']); ?></td>
 
-            <td class="action-cell">
+            <td>
 
                 <?php if($_SESSION['role_id'] == 1){ ?>
 
-                    <a href="edit_member.php?id=<?php echo urlencode($row['member_id']); ?>" class="btn edit">✎ Edit</a>
-                    <a href="delete_member.php?id=<?php echo urlencode($row['member_id']); ?>" class="btn delete" onclick="return confirm('Are you sure you want to delete this member?');">🗑 Delete</a>
+                    <a href="edit_member.php?id=<?php echo urlencode($row['member_id']); ?>" class="btn edit">Edit</a>
+                    <a href="delete_member.php?id=<?php echo urlencode($row['member_id']); ?>" class="btn delete" onclick="return confirm('Are you sure?');">Delete</a>
 
                 <?php } else { ?>
 
-                    <span style="color:gray;">No actions</span>
+                    <span style="color:gray;">View Only</span>
 
                 <?php } ?>
 
@@ -153,7 +152,12 @@ $result = mysqli_query($conn, "SELECT * FROM members ORDER BY member_id DESC");
 
         </tr>
 
-        <?php } ?>
+        <?php 
+            }
+        } else {
+            echo "<tr><td colspan='8' style='text-align:center;'>No members found</td></tr>";
+        }
+        ?>
 
     </table>
 
