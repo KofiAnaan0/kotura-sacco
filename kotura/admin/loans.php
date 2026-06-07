@@ -24,7 +24,7 @@ unset($_SESSION['error']);
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Loans</title>
+    <title>Manage Loans - KOTURA SACCO</title>
 
     <style>
         body{
@@ -37,6 +37,11 @@ unset($_SESSION['error']);
             background:white;
             padding:20px;
             border-radius:10px;
+        }
+
+        h2{
+            color:#1e3a8a;
+            margin-top:0;
         }
 
         .message {
@@ -63,41 +68,85 @@ unset($_SESSION['error']);
         table{
             width:100%;
             border-collapse:collapse;
+            margin-top:20px;
         }
 
         th{
             background:#1e3a8a;
             color:white;
-            padding:10px;
+            padding:12px;
+            text-align:left;
         }
 
         td{
-            padding:10px;
+            padding:12px;
             border:1px solid #ddd;
         }
 
-        .pending{ color:orange; font-weight: bold; }
-        .approved{ color:green; font-weight: bold; }
-        .rejected{ color:red; font-weight: bold; }
+        tr:hover{
+            background:#f9f9f9;
+        }
+
+        .pending{ 
+            color:#ff9800; 
+            font-weight: bold; 
+            background:#fff3e0;
+            padding:5px 10px;
+            border-radius:3px;
+            display:inline-block;
+        }
+
+        .approved{ 
+            color:green; 
+            font-weight: bold;
+            background:#e8f5e9;
+            padding:5px 10px;
+            border-radius:3px;
+            display:inline-block;
+        }
+
+        .rejected{ 
+            color:red; 
+            font-weight: bold;
+            background:#ffebee;
+            padding:5px 10px;
+            border-radius:3px;
+            display:inline-block;
+        }
+
+        .action-links {
+            white-space:nowrap;
+        }
 
         .action-links a {
-            padding: 5px 10px;
-            margin: 0 5px;
-            border-radius: 3px;
+            padding: 8px 15px;
+            margin: 0 3px;
+            border-radius: 4px;
             text-decoration: none;
             color: white;
+            display:inline-block;
+            font-weight:bold;
+            cursor:pointer;
         }
 
         .action-links a.approve {
-            background: green;
+            background: #4CAF50;
+        }
+
+        .action-links a.approve:hover {
+            background: #45a049;
         }
 
         .action-links a.reject {
-            background: red;
+            background: #f44336;
         }
 
-        .action-links a:hover {
-            opacity: 0.8;
+        .action-links a.reject:hover {
+            background: #da190b;
+        }
+
+        .action-links span {
+            color:gray;
         }
 
         .back-link {
@@ -107,10 +156,20 @@ unset($_SESSION['error']);
         .back-link a {
             color: #1e3a8a;
             text-decoration: none;
+            font-weight:bold;
         }
 
         .back-link a:hover {
             text-decoration: underline;
+        }
+
+        .loan-count {
+            background:#f5f5f5;
+            padding:10px 15px;
+            border-radius:5px;
+            margin-bottom:20px;
+            font-weight:bold;
+            color:#1e3a8a;
         }
     </style>
 </head>
@@ -131,7 +190,11 @@ unset($_SESSION['error']);
         <div class="message error">✗ <?php echo htmlspecialchars($error_message); ?></div>
     <?php endif; ?>
 
-    <h2>Loan Applications</h2>
+    <h2>📋 Loan Applications</h2>
+
+    <div class="loan-count">
+        Total Loan Applications: <?php echo mysqli_num_rows($result); ?>
+    </div>
 
     <table>
 
@@ -145,12 +208,15 @@ unset($_SESSION['error']);
             <th>Action</th>
         </tr>
 
-        <?php while($row = mysqli_fetch_assoc($result)) { ?>
+        <?php 
+        if(mysqli_num_rows($result) > 0) {
+            while($row = mysqli_fetch_assoc($result)) { 
+        ?>
 
         <tr>
 
             <td><?php echo htmlspecialchars($row['fullname']); ?></td>
-            <td>UGX <?php echo number_format($row['amount'], 0); ?></td>
+            <td>UGX <?php echo number_format($row['amount'], 2); ?></td>
             <td><?php echo htmlspecialchars($row['interest_rate']); ?>%</td>
             <td><?php echo htmlspecialchars($row['duration_months']); ?> months</td>
             <td><?php echo htmlspecialchars($row['purpose']); ?></td>
@@ -167,12 +233,12 @@ unset($_SESSION['error']);
 
                 <?php if($row['status'] == 'Pending'){ ?>
 
-                    <a href="approve_loan.php?id=<?php echo urlencode($row['loan_id']); ?>" class="approve" onclick="return confirm('Are you sure you want to approve this loan?');">Approve</a>
-                    <a href="reject_loan.php?id=<?php echo urlencode($row['loan_id']); ?>" class="reject" onclick="return confirm('Are you sure you want to reject this loan?');">Reject</a>
+                    <a href="approve_loan.php?id=<?php echo urlencode($row['loan_id']); ?>" class="approve" onclick="return confirm('✓ Are you sure you want to APPROVE this loan for ' + '<?php echo htmlspecialchars($row['fullname']); ?>' + '?');">✓ Approve</a>
+                    <a href="reject_loan.php?id=<?php echo urlencode($row['loan_id']); ?>" class="reject" onclick="return confirm('✗ Are you sure you want to REJECT this loan for ' + '<?php echo htmlspecialchars($row['fullname']); ?>' + '?');">✗ Reject</a>
 
                 <?php } else { ?>
 
-                    <span style="color:gray;">No action</span>
+                    <span>—</span>
 
                 <?php } ?>
 
@@ -180,7 +246,12 @@ unset($_SESSION['error']);
 
         </tr>
 
-        <?php } ?>
+        <?php 
+            }
+        } else {
+            echo "<tr><td colspan='7' style='text-align:center; padding:20px;'>No loan applications found</td></tr>";
+        }
+        ?>
 
     </table>
 
